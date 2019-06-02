@@ -1,5 +1,6 @@
 package com.partners.hostpital
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -22,16 +23,33 @@ class LoginActivity : AppCompatActivity() {
     }
     fun login(v: View){
         val service = API.request()
-        val response = API.request().oauthToken("password", 2, "k4u0l5xWh0UzVX2ffDstnDoZjZGQwtfN27J41bFo", user_edit_txt.text.toString(), password_edit_txt.text.toString(), "*")
+        val response = service.oauthToken("password", 4, "25fIpbW5RNhc6nUHjHEnttfk7LcKf7oU39NfJ0bM", user_edit_txt.text.toString(), password_edit_txt.text.toString(), "*")
 
 
         response.enqueue(object : Callback<TokenResponse> {
             override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
 
-                if (response.body() != null && (response.code() < 300)) {
+                if (response.body() != null && (response.code() < 300))
+                {
+                    val responseToken = requireNotNull(response.body())
                     Log.d("token", response.body()?.accessToken)
                     Toast.makeText(this@LoginActivity, "Se ha logeado correctamente", Toast.LENGTH_LONG).show()
-                    Paper.book().write(Constants.accessToken, response.body()?.accessToken);
+                    Paper.book().write(Constants.accessToken, responseToken.accessToken)
+                    Paper.book().write(Constants.isDoctor, responseToken.isDoctor)
+                    Paper.book().write(Constants.userId, responseToken.id)
+                    Paper.book().write(Constants.fullName, responseToken.firstName + ' ' +responseToken.lastName)
+                    Paper.book().write(Constants.patientId, responseToken.patientId)
+                    Toast.makeText(this@LoginActivity, responseToken.isDoctor.toString(), Toast.LENGTH_LONG).show()
+
+                    if (responseToken.isDoctor == 1){
+                        Paper.book().write(Constants.doctorId, responseToken.doctorId)
+
+                        val i = Intent(this@LoginActivity, ChooseApp::class.java)
+                        startActivity(i)
+                    }else{
+                        val i = Intent(this@LoginActivity, PatientActivity::class.java)
+                        startActivity(i)
+                    }
                 } else {
                     Log.e("fail token", response.code().toString() + " - " + response.message())
                     Toast.makeText(this@LoginActivity, response.code().toString() + " - " + response.message(), Toast.LENGTH_LONG).show()

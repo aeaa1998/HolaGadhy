@@ -1,8 +1,0 @@
-<resources>
-    <string name="app_name">Laboratorio3</string>
-    <string name="name">Nombre</string>
-    <string name="atitlan">Atitlan</string>
-    <string name="tikal">Tikal</string>
-    <string name="rio_dulce">Rio Dulce</string>
-    <string name="comment">Comentar</string>
-</resources>
